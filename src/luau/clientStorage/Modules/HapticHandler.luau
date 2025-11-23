@@ -72,6 +72,13 @@ function HapticHandler:Init(config: InitConfig)
 		self.InputDevice = lastInputType
 	end)
 
+	-- Initialize haptic muted state from attributes (default to false if not set, which means muted)
+	local hapticsPref = LocalPlayer:GetAttribute(D_Attributes.PlayerPrefs.Haptics)
+	if hapticsPref == nil then
+		hapticsPref = false
+	end
+	self.hapticMuted = not hapticsPref
+
 	-- Watch for haptic muting
 	LocalPlayer:GetAttributeChangedSignal(D_Attributes.PlayerPrefs.Haptics):Connect(function()
 		self.hapticMuted = not LocalPlayer:GetAttribute(D_Attributes.PlayerPrefs.Haptics)

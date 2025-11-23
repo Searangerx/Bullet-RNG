@@ -51,7 +51,10 @@ local D_Attributes = {
 	-- Misc
 	Anim = {
 		InProgress = "AnimInProgress" -- used by the anim lib to check if an instance is currently being animated
-	}
+	},
+
+	-- UI
+	UI_FirstPersonForce = "UI_FirstPersonForce" -- Used by Util.Player to identify the first-person forcing ScreenGui
 
 }
 

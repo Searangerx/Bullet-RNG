@@ -12,6 +12,8 @@ local _EventManager     = require(ReplicatedStorage.Shared.Modules.EventManager)
 -- Singletons: Non-Gui
 local _HapticHandler    = require(ReplicatedStorage.ClientStorage.Modules.HapticHandler)
 local _SoundHandler     = require(ReplicatedStorage.ClientStorage.Modules.SoundHandler)
+local _WeaponController = require(ReplicatedStorage.ClientStorage.Modules.WeaponController)
+local _CharacterController = require(ReplicatedStorage.ClientStorage.Modules.CharacterController)
 
 -- Singletons: GUI Generic
 local _ParticleManager  = require(ReplicatedStorage.ClientStorage.Modules.ParticleManager)
@@ -60,6 +62,13 @@ task.spawn(function()
 		ParticleManager   = _ParticleManager,
 		SoundHandler      = _SoundHandler
 	})
+
+	-- Initialize controllers
+	local weaponController = _WeaponController.new()
+	weaponController:Init()
+	
+	local characterController = _CharacterController.new()
+	characterController:Init()
 
 	-- Fire Event
 	_EventManager.Instances.BindableEvent.OnClientLoad:Fire()

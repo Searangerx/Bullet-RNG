@@ -98,7 +98,21 @@ function SoundHandler:Init(config: InitConfig)
 	-- Mute music for local test players
 	if LocalPlayer.UserId < 1 then
 		self.musicMuted = true
+	else
+		-- Initialize muted state from attributes (default to false if not set, which means muted)
+		local musicPref = LocalPlayer:GetAttribute(D_Attributes.PlayerPrefs.Music)
+		if musicPref == nil then
+			musicPref = false
+		end
+		self.musicMuted = not musicPref
 	end
+
+	-- Initialize sfx muted state from attributes
+	local sfxPref = LocalPlayer:GetAttribute(D_Attributes.PlayerPrefs.Sfx)
+	if sfxPref == nil then
+		sfxPref = true -- Sfx defaults to true (enabled)
+	end
+	self.sfxMuted = not sfxPref
 
 	-- Watch the Player Attributes which control muting sfx/music
 	LocalPlayer:GetAttributeChangedSignal(D_Attributes.PlayerPrefs.Sfx):Connect(function()

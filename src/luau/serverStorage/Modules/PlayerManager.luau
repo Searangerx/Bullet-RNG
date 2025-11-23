@@ -207,18 +207,99 @@ function PlayerManager:ConfigurePlayerCharacter(player: Player, character: Model
 		warn("PlayerManager:ConfigurePlayerCharacter: No Humanoid found for player: " .. player.Name)
 	end
 
+	-- Give player default weapon (do this before player data check so it always happens)
+	self:GiveDefaultWeapon(player)
+
 	-- Get the players stats/data and write them to attributes on the player
 	local playerData = self:GetPlayerData(player)
 	if not playerData then
 		warn("PlayerManager:ConfigurePlayerCharacter: No player data found for player: " .. player.Name)
-		return
+		-- Don't return early - weapon was already given
 	end
-	self:SetPlayerDataAttributes(player, playerData)
+	
+	if playerData then
+		self:SetPlayerDataAttributes(player, playerData)
+	end
 
 	return
 end
 
+--  ██╗   ██╗██████╗  █████╗ ██████╗ ██╗  ██╗    ██╗    ██╗███████╗ █████╗ ██████╗  ██████╗ ███╗   ██╗
+--  ██║   ██║██╔══██╗██╔══██╗██╔══██╗██║ ██╔╝    ██║    ██║██╔════╝██╔══██╗██╔══██╗██╔═══██╗████╗  ██║
+--  ██║   ██║██████╔╝███████║██████╔╝█████╔╝     ██║ █╗ ██║█████╗  ███████║██████╔╝██║   ██║██╔██╗ ██║
+--  ██║   ██║██╔══██╗██╔══██║██╔══██╗██╔═██╗     ██║███╗██║██╔══╝  ██╔══██║██╔══██╗██║   ██║██║╚██╗██║
+--  ╚██████╔╝██████╔╝██║  ██║██║  ██║██║  ██╗    ╚███╔███╔╝███████╗██║  ██║██║  ██║╚██████╔╝██║ ╚████║
+--   ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝     ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+--
 
+function PlayerManager:GiveDefaultWeapon(player: Player)
+	print("PlayerManager:GiveDefaultWeapon: Starting for " .. player.Name)
+	
+	-- Find weapons in ReplicatedStorage
+	local gunsFolder = ReplicatedStorage:FindFirstChild("Guns")
+	if not gunsFolder then
+		warn("PlayerManager:GiveDefaultWeapon: Guns folder not found in ReplicatedStorage")
+		return
+	end
+	print("PlayerManager:GiveDefaultWeapon: Found Guns folder")
+	
+	local backpack = player:FindFirstChild("Backpack")
+	if not backpack then
+		warn("PlayerManager:GiveDefaultWeapon: Backpack not found for player: " .. player.Name)
+		return
+	end
+	print("PlayerManager:GiveDefaultWeapon: Found Backpack")
+	
+	-- Check if player already has weapons
+	local hasWeapon = false
+	for _, child in backpack:GetChildren() do
+		if child:IsA("Tool") then
+			hasWeapon = true
+			print("PlayerManager:GiveDefaultWeapon: Player already has weapon in backpack: " .. child.Name)
+			break
+		end
+	end
+	
+	-- Also check character
+	if not hasWeapon then
+		if player.Character then
+			for _, child in player.Character:GetChildren() do
+				if child:IsA("Tool") then
+					hasWeapon = true
+					print("PlayerManager:GiveDefaultWeapon: Player already has weapon equipped: " .. child.Name)
+					break
+				end
+			end
+		end
+	end
+	
+	-- Give weapons if player doesn't have any
+	if not hasWeapon then
+		-- Give handgun (slot 1)
+		local handgunsFolder = gunsFolder:FindFirstChild("Handguns")
+		if handgunsFolder then
+			local handgunTemplate = handgunsFolder:FindFirstChild("Handgun")
+			if handgunTemplate and handgunTemplate:IsA("Tool") then
+				local handgun = handgunTemplate:Clone()
+				handgun.Parent = backpack
+				print("PlayerManager:GiveDefaultWeapon: Gave Handgun (slot 1) to " .. player.Name)
+			end
+		end
+		
+		-- Give shotgun (slot 2)
+		local shotgunsFolder = gunsFolder:FindFirstChild("Shotguns")
+		if shotgunsFolder then
+			local shotgunTemplate = shotgunsFolder:FindFirstChild("Nova Shotgun")
+			if shotgunTemplate and shotgunTemplate:IsA("Tool") then
+				local shotgun = shotgunTemplate:Clone()
+				shotgun.Parent = backpack
+				print("PlayerManager:GiveDefaultWeapon: Gave Nova Shotgun (slot 2) to " .. player.Name)
+			end
+		end
+	else
+		print("PlayerManager:GiveDefaultWeapon: Player already has weapons, skipping")
+	end
+end
 
 --  ██████╗ ███╗   ██╗     ██████╗██╗  ██╗ █████╗ ████████╗
 -- ██╔═══██╗████╗  ██║    ██╔════╝██║  ██║██╔══██╗╚══██╔══╝

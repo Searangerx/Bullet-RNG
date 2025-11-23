@@ -119,6 +119,14 @@ function PlayerPrefs:Init(
 		_HapticHandler:TriggerHaptic(Enum.HapticEffectType.UIClick)
 	end)
 
+	-- Initialize default preferences (Music and Haptics default to false)
+	if LocalPlayer:GetAttribute(D_Attributes.PlayerPrefs.Music) == nil then
+		LocalPlayer:SetAttribute(D_Attributes.PlayerPrefs.Music, false)
+	end
+	if LocalPlayer:GetAttribute(D_Attributes.PlayerPrefs.Haptics) == nil then
+		LocalPlayer:SetAttribute(D_Attributes.PlayerPrefs.Haptics, false)
+	end
+
 	-- Setup the player pref toggle inputs
 	self:SetupToggles()
 
@@ -141,7 +149,13 @@ function PlayerPrefs:SetupToggles()
 
 			-- Set it's initial state
 			local attr  = child:GetAttribute(D_Attributes.PlayerPrefs.ToggleBtnPref)
-			local state = LocalPlayer:GetAttribute(attr) or true
+			-- Default to false for Music and Haptics, true for other preferences
+			local defaultState = (attr == D_Attributes.PlayerPrefs.Music or attr == D_Attributes.PlayerPrefs.Haptics) and false or true
+			local state = LocalPlayer:GetAttribute(attr)
+			if state == nil then
+				state = defaultState
+				LocalPlayer:SetAttribute(attr, state)
+			end
 			self:SetToggleState(child, state)
 		end
 	end
@@ -168,7 +182,10 @@ function PlayerPrefs:OnToggleClick(btn: GuiButton)
 
 	-- Toggle the saved state
 	local currentState = LocalPlayer:GetAttribute(prefAttributeName)
-	if currentState == nil then currentState = true end
+	-- Default to false for Music and Haptics, true for other preferences
+	if currentState == nil then
+		currentState = (prefAttributeName == D_Attributes.PlayerPrefs.Music or prefAttributeName == D_Attributes.PlayerPrefs.Haptics) and false or true
+	end
 
 	local newState = not currentState
 	LocalPlayer:SetAttribute(prefAttributeName, newState)
